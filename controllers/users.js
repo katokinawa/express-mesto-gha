@@ -1,4 +1,4 @@
-const User = require("../models/user");
+const User = require('../models/user');
 
 module.exports.getUsers = (req, res) => {
   // Получить массив пользователей, то есть всех
@@ -35,6 +35,6 @@ module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(req.user._id, { avatar })
-    .then((avatar) => res.send({ data: avatar }))
+    .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => res.status(500).send({ message: err.message }));
 };
