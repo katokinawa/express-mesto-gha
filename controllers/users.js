@@ -48,7 +48,9 @@ module.exports.createUser = (req, res) => {
       if (err.name === 'ValidationError') {
         res
           .status(badRequest)
-          .send({ message: 'Переданы некорректные данные при создании пользователя.' });
+          .send({
+            message: 'Переданы некорректные данные при создании пользователя.',
+          });
       }
       res
         .status(internalServerError)
@@ -59,7 +61,11 @@ module.exports.createUser = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -73,7 +79,9 @@ module.exports.updateProfile = (req, res) => {
       if (err.name === 'ValidationError') {
         res
           .status(badRequest)
-          .send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+          .send({
+            message: 'Переданы некорректные данные при обновлении профиля.',
+          });
       }
       res
         .status(internalServerError)
@@ -84,13 +92,19 @@ module.exports.updateProfile = (req, res) => {
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    { new: true, runValidators: true },
+  )
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res
           .status(badRequest)
-          .send({ message: 'Переданы некорректные данные при создании карточки.' });
+          .send({
+            message: 'Переданы некорректные данные при создании карточки.',
+          });
       }
       res
         .status(internalServerError)
