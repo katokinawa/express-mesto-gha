@@ -8,11 +8,9 @@ module.exports.getCards = (req, res) => {
   // Получить массив всех карточек
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() =>
-      res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' })
-    );
+    .catch(() => res
+      .status(internalServerError)
+      .send({ message: 'Что-то пошло не так...' }));
 };
 
 module.exports.createCard = (req, res) => {
@@ -63,7 +61,7 @@ module.exports.likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
-    { new: true }
+    { new: true },
   )
     .then((like) => {
       if (!like) {
@@ -92,7 +90,7 @@ module.exports.dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((like) => {
       if (like) {
