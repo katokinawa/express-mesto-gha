@@ -8,7 +8,7 @@ module.exports.getUsers = (req, res) => {
   // Получить массив пользователей, то есть всех
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch((err) => res
+    .catch(() => res
       .status(internalServerError)
       .send({ message: 'Что-то пошло не так...' }));
 };
@@ -24,7 +24,7 @@ module.exports.findUserById = (req, res) => {
       }
       return res.send({ data: user });
     })
-    .catch((err) => {
+    .catch(() => {
       res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });

@@ -8,7 +8,7 @@ module.exports.getCards = (req, res) => {
   // Получить массив всех карточек
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch((err) => res
+    .catch(() => res
       .status(internalServerError)
       .send({ message: 'Что-то пошло не так...' }));
 };
@@ -42,7 +42,7 @@ module.exports.deleteCard = (req, res) => {
       }
       return res.send({ data: card });
     })
-    .catch((err) => {
+    .catch(() => {
       res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
