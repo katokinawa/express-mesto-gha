@@ -35,7 +35,7 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res) => {
   // Удалить карточку
-  Card.findByIdAndDelete(req.params.id)
+  Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (card) {
         res.send({ data: card });
