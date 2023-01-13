@@ -15,7 +15,7 @@ module.exports.getUsers = (req, res) => {
 
 module.exports.findUserById = (req, res) => {
   // Найти по ID
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -40,7 +40,8 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(badRequest)
+        return res
+          .status(badRequest)
           .send({ message: 'Переданы некорректные данные при создании карточки.' });
       }
       return res
@@ -52,7 +53,7 @@ module.exports.createUser = (req, res) => {
 module.exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { name, about })
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
         return res
@@ -75,7 +76,7 @@ module.exports.updateProfile = (req, res) => {
 module.exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(req.user._id, { avatar })
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
