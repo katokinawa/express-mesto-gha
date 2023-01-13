@@ -19,22 +19,20 @@ module.exports.findUserById = (req, res) => {
     .then((user) => {
       if (user) {
         res.send({ data: user });
-      } else {
-        res
-          .status(notFound)
-          .send({ message: 'Пользователь по указанному _id не найден.' });
       }
+      res
+        .status(notFound)
+        .send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
         res
           .status(badRequest)
           .send({ message: 'Некорректный _id пользователя.' });
-      } else {
-        res
-          .status(internalServerError)
-          .send({ message: 'Что-то пошло не так...' });
       }
+      res
+        .status(internalServerError)
+        .send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -69,11 +67,10 @@ module.exports.updateProfile = (req, res) => {
     .then((user) => {
       if (user) {
         res.send({ data: user });
-      } else {
-        res
-          .status(notFound)
-          .send({ message: 'Пользователь с указанным _id не найден.' });
       }
+      res
+        .status(notFound)
+        .send({ message: 'Пользователь с указанным _id не найден.' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
