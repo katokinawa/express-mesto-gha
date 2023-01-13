@@ -25,10 +25,16 @@ module.exports.findUserById = (req, res) => {
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
     })
-    .catch(() => {
-      res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(badRequest)
+          .send({ message: 'Некорректный _id пользователя.' });
+      } else {
+        res
+          .status(internalServerError)
+          .send({ message: 'Что-то пошло не так...' });
+      }
     });
 };
 
@@ -40,11 +46,11 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
+        res
           .status(badRequest)
-          .send({ message: 'Переданы некорректные данные при создании карточки.' });
+          .send({ message: 'Переданы некорректные данные при создании пользователя.' });
       }
-      return res
+      res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -55,19 +61,21 @@ module.exports.updateProfile = (req, res) => {
 
   User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
-      if (!user) {
-        return res
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res
           .status(notFound)
           .send({ message: 'Пользователь с указанным _id не найден.' });
       }
-      return res.send({ data: user });
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        return res
+      if (err.name === 'ValidationError') {
+        res
+          .status(badRequest)
           .send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      return res
+      res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -80,11 +88,11 @@ module.exports.updateAvatar = (req, res) => {
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
+        res
           .status(badRequest)
           .send({ message: 'Переданы некорректные данные при создании карточки.' });
       }
-      return res
+      res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
