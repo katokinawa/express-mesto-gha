@@ -21,13 +21,13 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message: 'Переданы некорректные данные при создании карточки.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -38,19 +38,19 @@ module.exports.deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (card) {
-        res.send({ data: card });
+        return res.send({ data: card });
       }
-      res
+      return res
         .status(notFound)
         .send({ message: 'Карточка с указанным _id не найдена.' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
+        return res
           .status(badRequest)
           .send({ message: 'Передан несуществующий _id карточки.' });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -64,22 +64,22 @@ module.exports.likeCard = (req, res) => {
   )
     .then((like) => {
       if (!like) {
-        res
+        return res
           .status(notFound)
           .send({ message: 'Передан несуществующий _id карточки.' });
       }
-      res.send({ data: like });
+      return res.send({ data: like });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message:
               'Переданы некорректные данные для постановки/снятии лайка.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -93,22 +93,22 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((like) => {
       if (like) {
-        res.send({ data: like });
+        return res.send({ data: like });
       }
-      res
+      return res
         .status(notFound)
         .send({ message: 'Передан несуществующий _id карточки.' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message:
               'Переданы некорректные данные для постановки/снятии лайка.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });

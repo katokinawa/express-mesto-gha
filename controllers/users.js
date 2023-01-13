@@ -18,19 +18,19 @@ module.exports.findUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
-        res.send({ data: user });
+        return res.send({ data: user });
       }
-      res
+      return res
         .status(notFound)
         .send({ message: 'Пользователь по указанному _id не найден.' });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
+        return res
           .status(badRequest)
           .send({ message: 'Некорректный _id пользователя.' });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -44,13 +44,13 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message: 'Переданы некорректные данные при создании пользователя.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -66,21 +66,21 @@ module.exports.updateProfile = (req, res) => {
   )
     .then((user) => {
       if (user) {
-        res.send({ data: user });
+        return res.send({ data: user });
       }
-      res
+      return res
         .status(notFound)
         .send({ message: 'Пользователь с указанным _id не найден.' });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message: 'Переданы некорректные данные при обновлении профиля.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });
@@ -97,13 +97,13 @@ module.exports.updateAvatar = (req, res) => {
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
+        return res
           .status(badRequest)
           .send({
             message: 'Переданы некорректные данные при создании карточки.',
           });
       }
-      res
+      return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
     });

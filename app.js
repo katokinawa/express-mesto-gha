@@ -7,7 +7,7 @@ const { PORT = 3000 } = process.env;
 
 mongoose.set('strictQuery', false);
 mongoose
-  .connect('mongodb://localhost:27017/mestodb')
+  .connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('Connected!')); // обычная проверочка подключения к базе данных.
 
 app.use(bodyParser.json()); // для собирания JSON-формата
