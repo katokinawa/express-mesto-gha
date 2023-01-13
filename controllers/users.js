@@ -17,12 +17,13 @@ module.exports.findUserById = (req, res) => {
   // Найти по ID
   User.findById(req.params.id)
     .then((user) => {
-      if (!user) {
-        return res
+      if (user) {
+        res.send({ data: user });
+      } else {
+        res
           .status(notFound)
           .send({ message: 'Пользователь по указанному _id не найден.' });
       }
-      return res.send({ data: user });
     })
     .catch(() => {
       res
