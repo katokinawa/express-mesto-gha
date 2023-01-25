@@ -44,11 +44,9 @@ module.exports.createUser = (req, res) => {
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(badRequest)
-          .send({
-            message: 'Переданы некорректные данные при создании пользователя.',
-          });
+        return res.status(badRequest).send({
+          message: 'Переданы некорректные данные при создании пользователя.',
+        });
       }
       return res
         .status(internalServerError)
@@ -74,11 +72,9 @@ module.exports.updateProfile = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(badRequest)
-          .send({
-            message: 'Переданы некорректные данные при обновлении профиля.',
-          });
+        return res.status(badRequest).send({
+          message: 'Переданы некорректные данные при обновлении профиля.',
+        });
       }
       return res
         .status(internalServerError)
@@ -97,11 +93,9 @@ module.exports.updateAvatar = (req, res) => {
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res
-          .status(badRequest)
-          .send({
-            message: 'Переданы некорректные данные при создании карточки.',
-          });
+        return res.status(badRequest).send({
+          message: 'Переданы некорректные данные при создании карточки.',
+        });
       }
       return res
         .status(internalServerError)
