@@ -1,9 +1,11 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 const badRequest = 400;
 const notFound = 404;
 const internalServerError = 500;
+const unauthorized = 401;
 
 module.exports.getUsers = (req, res) => {
   // Получить массив пользователей, то есть всех
@@ -102,5 +104,43 @@ module.exports.updateAvatar = (req, res) => {
       return res
         .status(internalServerError)
         .send({ message: 'Что-то пошло не так...' });
+    });
+};
+
+module.exports.login = (req, res) => {
+  const { email, password } = req.body;
+
+  User.findOne({ email })
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key');
+      // вернём токен
+      res
+        .cookie('jwt', token, {
+          // token - наш JWT токен, который мы отправляем
+          maxAge: 604800,
+          httpOnly: true,
+          credentials: 'include',
+        })
+        .end();
+
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+
+      // аутентификация успешна
+      res.send({ message: 'Всё верно!' });
+    })
+    .catch((err) => {
+      res
+        .status(unauthorized)
+        .send({ message: err.message });
     });
 };
