@@ -1,9 +1,14 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+require('dotenv').config();
 const { login, createUser, } = require('./controllers/users');
+const auth = require('./middlewares/auth');
+const notFound = 404;
 
 const app = express();
+
 const { PORT = 3000 } = process.env;
 
 mongoose.set('strictQuery', false);
@@ -11,6 +16,8 @@ mongoose
   .connect("mongodb://127.0.0.1:27017/mestodb")
   .then(() => console.log('Connected!')); // обычная проверочка подключения к базе данных.
 
+
+app.use(cookieParser());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
 app.use((req, res, next) => {
@@ -22,12 +29,12 @@ app.use((req, res, next) => {
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
-app.post('/signin', login);
-app.post('/signup', createUser);
+app.post('/signin', auth, login);
+app.post('/signup', auth, createUser);
 
 
 app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Неправильный путь' });
+  res.status(notFound).send({ message: 'Неправильный путь' });
 });
 
 app.listen(PORT, () => {

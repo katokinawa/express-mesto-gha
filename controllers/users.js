@@ -1,11 +1,12 @@
 const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-
+const { SECRET_KEY } = process.env;
 const badRequest = 400;
 const notFound = 404;
 const internalServerError = 500;
 const unauthorized = 401;
+const ok = 200;
 
 module.exports.getUsers = (req, res) => {
   // Получить массив пользователей, то есть всех
@@ -107,18 +108,34 @@ module.exports.updateAvatar = (req, res) => {
     });
 };
 
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(notFound)
+          .send({ message: 'Пользователь по указанному _id не найден.' });
+      }
+      return res.status(ok).send({ data: user });
+    })
+    .catch(() => res
+      .status(internalServerError)
+      .send({ message: 'Что-то пошло не так...' }));
+}
+
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
 
   User.findOne({ email })
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key');
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY);
       // вернём токен
       res
         .cookie('jwt', token, {
           // token - наш JWT токен, который мы отправляем
           maxAge: 604800,
           httpOnly: true,
+          sameSite: true,
           credentials: 'include',
         })
         .end();
