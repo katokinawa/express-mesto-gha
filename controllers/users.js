@@ -2,64 +2,52 @@ const User = require('../models/user');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { SECRET_KEY } = process.env;
-const badRequest = 400;
-const notFound = 404;
-const internalServerError = 500;
-const unauthorized = 401;
+const badRequest = require('../errors/badRequest');
+const internalServerError = require('../errors/internalServerError')
+const notFound = require('../errors/notFound');
+const unauthorized = require('../errors/unauthorized');
 const ok = 200;
 
-module.exports.getUsers = (req, res) => {
+module.exports.getUsers = (req, res, next) => {
   // Получить массив пользователей, то есть всех
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res
-      .status(internalServerError)
-      .send({ message: 'Что-то пошло не так...' }));
+    .catch(next);
 };
 
-module.exports.findUserById = (req, res) => {
+module.exports.findUserById = (req, res, next) => {
   // Найти по ID
   User.findById(req.params.userId)
     .then((user) => {
       if (user) {
         return res.send({ data: user });
       }
-      return res
-        .status(notFound)
-        .send({ message: 'Пользователь по указанному _id не найден.' });
+      return next(new notFound('Пользователь по указанному _id не найден.'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(badRequest)
-          .send({ message: 'Некорректный _id пользователя.' });
+        return next(new badRequest('Некорректный _id пользователя.' ));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
 module.exports.createUser = (req, res) => {
   // Создать пользователя
-  const { name, about, avatar, email, password } = req.body;
+  const { name, about, avatar, email, password, next } = req.body;
   bcrypt.hash(req.body.password, 10).
     then(hash =>
   User.create({ name, about, avatar, email, password: hash }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
+        return next(new badRequest ('Переданы некорректные данные при создании пользователя.'));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.updateProfile = (req, res) => {
+module.exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
 
   User.findByIdAndUpdate(
@@ -71,23 +59,17 @@ module.exports.updateProfile = (req, res) => {
       if (user) {
         return res.send({ data: user });
       }
-      return res
-        .status(notFound)
-        .send({ message: 'Пользователь с указанным _id не найден.' });
+      return next(new notFound ('Пользователь с указанным _id не найден.'));
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
+        return next(new badRequest ('Переданы некорректные данные при обновлении профиля.'))
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.updateAvatar = (req, res) => {
+module.exports.updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
 
   User.findByIdAndUpdate(
@@ -98,29 +80,21 @@ module.exports.updateAvatar = (req, res) => {
     .then((updateAvatar) => res.send({ data: updateAvatar }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные при создании карточки.',
-        });
+        return next(new badRequest ('Переданы некорректные данные при создании карточки.'))
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.getCurrentUser = (req, res) => {
+module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res
-          .status(notFound)
-          .send({ message: 'Пользователь по указанному _id не найден.' });
+        return next(new notFound ('Пользователь по указанному _id не найден.'));
       }
       return res.status(ok).send({ data: user });
     })
-    .catch(() => res
-      .status(internalServerError)
-      .send({ message: 'Что-то пошло не так...' }));
+    .catch(next);
 }
 
 module.exports.login = (req, res) => {

@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const { login, createUser, } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const { celebrate, Joi } = require('celebrate');
+const { errors } = require('celebrate');
+const regExpMail = /^[A-Z0-9._%+-]+@[A-Z0-9-]+.+.[A-Z]{2,4}$/i
 const notFound = 404;
 
 const app = express();
@@ -16,7 +19,7 @@ mongoose
   .connect("mongodb://127.0.0.1:27017/mestodb")
   .then(() => console.log('Connected!')); // обычная проверочка подключения к базе данных.
 
-
+app.use(errors());
 app.use(cookieParser());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
@@ -29,12 +32,39 @@ app.use((req, res, next) => {
 
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
-app.post('/signin', auth, login);
-app.post('/signup', auth, createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regExpMail),
+    email: Joi.string().required().email(),
+    password: Joi.string().required(),
+  })}), auth, login);
+
+app.post('/signup',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    })}), auth, createUser);
 
 
 app.use('*', (req, res) => {
   res.status(notFound).send({ message: 'Неправильный путь' });
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+
+  res
+    .status(statusCode)
+    .send({
+      // проверяем статус и выставляем сообщение в зависимости от него
+      message: statusCode === 500
+        ? 'Что-то пошло не так...'
+        : message
+    });
+  next()
 });
 
 app.listen(PORT, () => {
