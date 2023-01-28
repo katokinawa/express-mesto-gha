@@ -1,8 +1,8 @@
-class notFound extends Error {
+class NotFound extends Error {
   constructor(message) {
     super(message);
     this.statusCode = 404;
   }
 }
 
-module.exports = notFound;
+module.exports = NotFound;

@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+
 const { SECRET_KEY } = process.env;
 const unauthorized = 401;
 
@@ -22,5 +23,5 @@ module.exports = (req, res, next) => {
   }
 
   req.user = payload;
-  next();
-}
+  return next();
+};
