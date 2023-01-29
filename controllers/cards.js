@@ -1,19 +1,16 @@
 const Card = require('../models/card');
 
-const badRequest = 400;
-const notFound = 404;
-const internalServerError = 500;
+const BadRequest = require('../errors/BadRequest');
+const NotFound = require('../errors/NotFound');
 
-module.exports.getCards = (req, res) => {
+module.exports.getCards = (req, res, next) => {
   // Получить массив всех карточек
   Card.find({})
     .then((cards) => res.send({ data: cards }))
-    .catch(() => res
-      .status(internalServerError)
-      .send({ message: 'Что-то пошло не так...' }));
+    .catch(next);
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   // Создать карточку
   const { name, link } = req.body;
 
@@ -21,40 +18,30 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ data: card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные при создании карточки.',
-        });
+        return next(new BadRequest('Переданы некорректные данные при создании карточки.'));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   // Удалить карточку
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (card) {
         return res.send({ data: card });
       }
-      return res
-        .status(notFound)
-        .send({ message: 'Карточка с указанным _id не найдена.' });
+      return next(new NotFound('Карточка с указанным _id не найдена.'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res
-          .status(badRequest)
-          .send({ message: 'Передан несуществующий _id карточки.' });
+        return next(new BadRequest('Передан несуществующий _id карточки.'));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
@@ -62,25 +49,19 @@ module.exports.likeCard = (req, res) => {
   )
     .then((like) => {
       if (!like) {
-        return res
-          .status(notFound)
-          .send({ message: 'Передан несуществующий _id карточки.' });
+        return next(new NotFound('Передан несуществующий _id карточки.'));
       }
       return res.send({ data: like });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
+        return next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } }, // убрать _id из массива
@@ -90,18 +71,12 @@ module.exports.dislikeCard = (req, res) => {
       if (like) {
         return res.send({ data: like });
       }
-      return res
-        .status(notFound)
-        .send({ message: 'Передан несуществующий _id карточки.' });
+      return next(new NotFound('Передан несуществующий _id карточки.'));
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(badRequest).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
+        return next(new BadRequest('Переданы некорректные данные для постановки/снятии лайка.'));
       }
-      return res
-        .status(internalServerError)
-        .send({ message: 'Что-то пошло не так...' });
+      return next(err);
     });
 };
