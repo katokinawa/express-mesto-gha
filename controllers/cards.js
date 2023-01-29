@@ -30,12 +30,12 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        next(new NotFound('Карточка с указанным _id не найдена.'));
-      } else if (card === req.user._id) {
-        next(new Forbidden('Вы не можете удалять чужие карточки'));
-      } else {
-        res.send({ data: card });
+        return next(new NotFound('Карточка с указанным _id не найдена.'));
       }
+      if (card === req.user._id) {
+        return next(new Forbidden('Вы не можете удалять чужие карточки'));
+      }
+      return res.send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
