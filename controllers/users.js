@@ -118,15 +118,32 @@ module.exports.getCurrentUser = (req, res, next) => {
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  User.findOne({ email })
+    .select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY);
+      // вернём токен
       res
         .cookie('jwt', token, {
+          // token - наш JWT токен, который мы отправляем
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
           sameSite: true,
-        });
+        })
+        .end();
+
+      if (!user) {
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      return bcrypt.compare(password, user.password);
+    })
+    .then((matched) => {
+      if (!matched) {
+        // хеши не совпали — отклоняем промис
+        return Promise.reject(new Error('Неправильные почта или пароль'));
+      }
+      // аутентификация успешна
+      return res.send({ message: 'Всё верно!' });
     })
     .catch(next);
 };
