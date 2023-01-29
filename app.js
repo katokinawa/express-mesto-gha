@@ -49,8 +49,8 @@ app.post(
   createUser,
 );
 
-app.use('/users', require('./routes/user'));
-app.use('/cards', require('./routes/card'));
+app.use('/users', auth, require('./routes/user'));
+app.use('/cards', auth, require('./routes/card'));
 
 app.use(errors());
 app.use('*', (req, res) => {

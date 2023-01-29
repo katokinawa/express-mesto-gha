@@ -7,8 +7,6 @@ const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
 const Conflict = require('../errors/Conflict');
 
-const ok = 200;
-
 module.exports.getUsers = (req, res, next) => {
   // Получить массив пользователей, то есть всех
   User.find({})
@@ -36,7 +34,7 @@ module.exports.findUserById = (req, res, next) => {
 module.exports.createUser = (req, res, next) => {
   // Создать пользователя
   const {
-    name, about, avatar, email, password
+    name, about, avatar, email,
   } = req.body;
   bcrypt
     .hash(req.body.password, 10)
@@ -48,9 +46,7 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      const newUser = JSON.parse(JSON.stringify(user));
-      delete newUser.password;
-      res.send({ data: newUser })
+      res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
