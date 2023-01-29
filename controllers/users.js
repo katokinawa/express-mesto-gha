@@ -46,7 +46,9 @@ module.exports.createUser = (req, res, next) => {
       password: hash,
     }))
     .then((user) => {
-      res.send({ data: user });
+      const newUser = JSON.parse(JSON.stringify(user));
+      delete newUser.password;
+      res.send({ data: newUser });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -125,8 +127,7 @@ module.exports.login = (req, res, next) => {
           httpOnly: true,
           sameSite: true,
           credentials: 'include',
-        })
-        .send({ message: 'Авторизация прошла успешно' });
+        });
     })
     .catch(next);
 };
