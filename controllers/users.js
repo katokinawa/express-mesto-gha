@@ -34,10 +34,10 @@ module.exports.findUserById = (req, res, next) => {
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   // Создать пользователя
   const {
-    name, about, avatar, email, next,
+    name, about, avatar, email,
   } = req.body;
   bcrypt
     .hash(req.body.password, 10)

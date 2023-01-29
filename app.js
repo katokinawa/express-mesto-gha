@@ -25,12 +25,22 @@ app.use(errors());
 app.use(cookieParser());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
-
 app.use('/users', require('./routes/user'));
 app.use('/cards', require('./routes/card'));
 
 app.post(
   '/signin',
+  celebrate({
+    body: Joi.object().keys({
+      email: Joi.string().required().email(),
+      password: Joi.string().required(),
+    }),
+  }),
+  login,
+);
+
+app.post(
+  '/signup',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().min(2).max(30),
@@ -40,22 +50,10 @@ app.post(
       password: Joi.string().required(),
     }),
   }),
-  auth,
-  login,
-);
-
-app.post(
-  '/signup',
-  celebrate({
-    body: Joi.object().keys({
-      email: Joi.string().required().email(),
-      password: Joi.string().required(),
-    }),
-  }),
-  auth,
   createUser,
 );
 
+app.use(auth);
 app.use('*', (req, res) => {
   res.status(notFound).send({ message: 'Неправильный путь' });
 });
