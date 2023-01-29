@@ -9,7 +9,6 @@ const auth = require('./middlewares/auth');
 
 // eslint-disable-next-line no-useless-escape
 const regExpUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
-const notFound = 404;
 
 const app = express();
 
@@ -54,7 +53,7 @@ app.use('/cards', auth, require('./routes/card'));
 
 app.use(errors());
 app.use('*', (req, res) => {
-  res.status(notFound).send({ message: 'Неправильный путь.' });
+  res.status(404).send({ message: 'Неправильный путь.' });
 });
 
 app.use((err, req, res, next) => {
