@@ -3,8 +3,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
-const { celebrate, Joi } = require('celebrate');
-const { errors } = require('celebrate');
+const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 
@@ -21,12 +20,9 @@ mongoose
   .connect('mongodb://127.0.0.1:27017/mestodb')
   .then(() => console.log('Connected!')); // обычная проверочка подключения к базе данных.
 
-app.use(errors());
 app.use(cookieParser());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
-app.use('/users', require('./routes/user'));
-app.use('/cards', require('./routes/card'));
 
 app.post(
   '/signin',
@@ -53,9 +49,12 @@ app.post(
   createUser,
 );
 
-app.use(auth);
+app.use('/users', require('./routes/user'));
+app.use('/cards', require('./routes/card'));
+
+app.use(errors());
 app.use('*', (req, res) => {
-  res.status(notFound).send({ message: 'Неправильный путь' });
+  res.status(notFound).send({ message: 'Неправильный путь.' });
 });
 
 app.use((err, req, res, next) => {

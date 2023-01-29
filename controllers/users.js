@@ -5,7 +5,6 @@ const User = require('../models/user');
 const { SECRET_KEY } = process.env;
 const BadRequest = require('../errors/BadRequest');
 const NotFound = require('../errors/NotFound');
-const Unauthorized = require('../errors/Unauthorized');
 const Conflict = require('../errors/Conflict');
 
 const ok = 200;
@@ -27,7 +26,7 @@ module.exports.findUserById = (req, res, next) => {
       return next(new NotFound('Пользователь по указанному _id не найден.'));
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
+      if (err.name === 'ValidationError') {
         return next(new BadRequest('Некорректный _id пользователя.'));
       }
       return next(err);
@@ -37,7 +36,7 @@ module.exports.findUserById = (req, res, next) => {
 module.exports.createUser = (req, res, next) => {
   // Создать пользователя
   const {
-    name, about, avatar, email,
+    name, about, avatar, email, password
   } = req.body;
   bcrypt
     .hash(req.body.password, 10)
@@ -48,14 +47,14 @@ module.exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.send({ data: user }))
+    .then((user) => {
+      const newUser = JSON.parse(JSON.stringify(user));
+      delete newUser.password;
+      res.send({ data: newUser })
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(
-          new BadRequest(
-            'Переданы некорректные данные при создании пользователя.',
-          ),
-        );
+        next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
       } else if (err.code === 11000) {
         next(new Conflict('Пользователь с таким email уже существует'));
       } else {
@@ -110,47 +109,28 @@ module.exports.updateAvatar = (req, res, next) => {
 module.exports.getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      if (!user) {
-        return next(new NotFound('Пользователь по указанному _id не найден.'));
+      if (user) {
+        return res.send({ data: user });
       }
-      return res.status(ok).send({ data: user });
+      return next(new NotFound('Пользователь по указанному _id не найден.'));
     })
     .catch(next);
 };
 
-module.exports.login = (req, res) => {
+module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
 
-  User.findOne({ email })
-    .select('+password')
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SECRET_KEY);
-      // вернём токен
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
       res
         .cookie('jwt', token, {
-          // token - наш JWT токен, который мы отправляем
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
           sameSite: true,
           credentials: 'include',
         })
-        .end();
-
-      if (!user) {
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-
-      return bcrypt.compare(password, user.password);
+        .send({ message: 'Авторизация прошла успешно' });
     })
-    .then((matched) => {
-      if (!matched) {
-        // хеши не совпали — отклоняем промис
-        return Promise.reject(new Error('Неправильные почта или пароль'));
-      }
-      // аутентификация успешна
-      return res.send({ message: 'Всё верно!' });
-    })
-    .catch((err) => {
-      res.status(Unauthorized).send({ message: err.message });
-    });
+    .catch(next);
 };
