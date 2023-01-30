@@ -23,12 +23,7 @@ module.exports.findUserById = (req, res, next) => {
       }
       return next(new NotFound('Пользователь по указанному _id не найден.'));
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return next(new BadRequest('Некорректный _id пользователя.'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.createUser = (req, res, next) => {
@@ -52,7 +47,11 @@ module.exports.createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Переданы некорректные данные при создании пользователя.'));
+        next(
+          new BadRequest(
+            'Переданы некорректные данные при создании пользователя.',
+          ),
+        );
       } else if (err.code === 11000) {
         next(new Conflict('Пользователь с таким email уже существует'));
       } else {
@@ -93,11 +92,16 @@ module.exports.updateAvatar = (req, res, next) => {
     { avatar },
     { new: true, runValidators: true },
   )
-    .then((updateAvatar) => res.send({ data: updateAvatar }))
+    .then((user) => {
+      if (user) {
+        return res.send({ data: user });
+      }
+      return next(new NotFound('Запрашиваемый пользователь не найден.'));
+    })
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(
-          new BadRequest('Переданы некорректные данные при создании карточки.'),
+          new BadRequest('Переданы некорректные данные для обновления аватара.'),
         );
       }
       return next(err);
@@ -120,7 +124,9 @@ module.exports.login = (req, res, next) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: user._id }, SECRET_KEY, {
+        expiresIn: '7d',
+      });
       res
         .cookie('jwt', token, {
           maxAge: 3600000 * 24 * 7,

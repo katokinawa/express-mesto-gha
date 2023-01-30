@@ -6,7 +6,7 @@ require('dotenv').config();
 const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-
+const NotFound = require('./errors/NotFound');
 // eslint-disable-next-line no-useless-escape
 const regExpUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
 
@@ -52,8 +52,8 @@ app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
 app.use(errors());
-app.use('*', (req, res) => {
-  res.status(404).send({ message: 'Неправильный путь.' });
+app.use('*', (req, res, next) => {
+  next(new NotFound('Неправильный путь.'));
 });
 
 app.use((err, req, res, next) => {
