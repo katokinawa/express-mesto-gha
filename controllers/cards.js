@@ -36,16 +36,10 @@ module.exports.deleteCard = (req, res, next) => {
       } else if (String(card.owner) !== req.user._id) {
         next(new Forbidden('Вы не можете удалять чужие карточки'));
       } else {
-        card.remove().then(() => res.status(200).send({ data: card }));
+        card.remove().then(() => res.status(200).send({ data: card })).catch(next);
       }
     })
-    .catch((err) => {
-      console.log(err);
-      if (err.name === 'ValidationError') {
-        return next(new BadRequest('Передан несуществующий _id карточки.'));
-      }
-      return next(err);
-    });
+    .catch(next);
 };
 
 module.exports.likeCard = (req, res, next) => {
