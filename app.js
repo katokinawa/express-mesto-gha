@@ -28,8 +28,6 @@ app.use(requestLogger);
 const allowedCors = [
   'https://katokinawa.front.nomoredomainsclub.ru',
   'http://katokinawa.front.nomoredomainsclub.ru',
-  'https://praktikum.tk',
-  'http://praktikum.tk',
   'localhost:3000',
 ];
 
