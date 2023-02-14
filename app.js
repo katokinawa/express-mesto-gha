@@ -50,7 +50,7 @@ app.use((req, res, next) => {
   }
 
   return next();
-};
+});
 
 app.post(
   '/signin',
