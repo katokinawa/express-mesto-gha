@@ -29,7 +29,7 @@ const allowedCors = [
   'https://praktikum.tk',
   'http://praktikum.tk',
   'localhost:3000',
-  'http://katokinawa.front.nomoredomainsclub.ru/',
+  'https://api.katokinawa.nomoredomains.work',
 ];
 
 app.use((req, res, next) => {
