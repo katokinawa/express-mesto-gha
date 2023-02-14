@@ -32,7 +32,7 @@ const allowedCors = [
   'localhost:3001',
 ];
 
-const cors = (req, res, next) => {
+app.use((req, res, next) => {
   const { origin } = req.headers;
   const { method } = req;
   const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
@@ -51,8 +51,6 @@ const cors = (req, res, next) => {
 
   return next();
 };
-
-app.use(cors);
 
 app.post(
   '/signin',
