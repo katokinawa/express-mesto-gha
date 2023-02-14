@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const { celebrate, Joi, errors } = require('celebrate');
 const { login, createUser } = require('./controllers/users');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 const auth = require('./middlewares/auth');
 const NotFound = require('./errors/NotFound');
 // eslint-disable-next-line no-useless-escape
@@ -21,6 +22,7 @@ mongoose
 app.use(cookieParser());
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true })); // для приёма веб-страниц внутри POST-запроса
+app.use(requestLogger);
 
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
@@ -84,7 +86,8 @@ app.post(
 app.use('/users', auth, require('./routes/user'));
 app.use('/cards', auth, require('./routes/card'));
 
-app.use(errors());
+app.use(errorLogger); // логгер ошибок
+app.use(errors()); // обработчик ошибок celebrate
 app.use('*', (req, res, next) => {
   next(new NotFound('Неправильный путь.'));
 });
