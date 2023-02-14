@@ -26,6 +26,7 @@ app.use(requestLogger);
 
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
+  'https://katokinawa.front.nomoredomainsclub.ru',
   'http://katokinawa.front.nomoredomainsclub.ru',
   'https://praktikum.tk',
   'http://praktikum.tk',
