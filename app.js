@@ -26,10 +26,10 @@ app.use(requestLogger);
 
 // Массив доменов, с которых разрешены кросс-доменные запросы
 const allowedCors = [
+  'http://katokinawa.front.nomoredomainsclub.ru',
   'https://praktikum.tk',
   'http://praktikum.tk',
   'localhost:3000',
-  'https://api.katokinawa.nomoredomains.work',
 ];
 
 app.use((req, res, next) => {
@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 
   if (allowedCors.includes(origin)) {
     // устанавливаем заголовок, который разрешает браузеру запросы с этого источника
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', origin);
   }
 
   // Если это предварительный запрос, добавляем нужные заголовки
