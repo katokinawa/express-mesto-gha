@@ -47,7 +47,7 @@ function cors(req, res, next) {
     return res.end();
   }
 
-  return next();
+  next();
 }
 
 app.use(cors());
