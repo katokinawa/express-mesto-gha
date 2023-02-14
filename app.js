@@ -53,10 +53,10 @@ app.use((req, res, next) => {
     // разрешаем кросс-доменные запросы с этими заголовками
     res.header('Access-Control-Allow-Headers', requestHeaders);
     // завершаем обработку запроса и возвращаем результат клиенту
-    res.end();
+    return res.end();
   }
 
-  next();
+  return next();
 });
 
 app.post(
