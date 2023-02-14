@@ -29,9 +29,10 @@ const allowedCors = [
   'https://katokinawa.front.nomoredomainsclub.ru',
   'http://katokinawa.front.nomoredomainsclub.ru',
   'localhost:3000',
+  'localhost:3001',
 ];
 
-function cors(req, res, next) {
+const cors = (req, res, next) => {
   const { origin } = req.headers;
   const { method } = req;
   const DEFAULT_ALLOWED_METHODS = 'GET,HEAD,PUT,PATCH,POST,DELETE';
@@ -47,7 +48,7 @@ function cors(req, res, next) {
     return res.end();
   }
 
-  next();
+  return next();
 }
 
 app.use(cors());
