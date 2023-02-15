@@ -23,8 +23,8 @@ mongoose
 const allowedCors = [
   'https://katokinawa.front.nomoredomainsclub.ru',
   'http://katokinawa.front.nomoredomainsclub.ru',
-  'localhost:3000',
-  'localhost:3001',
+  'https://localhost:3000',
+  'http://localhost:3000',
 ];
 
 app.use((req, res, next) => {
