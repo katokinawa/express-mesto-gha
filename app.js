@@ -9,6 +9,7 @@ const auth = require('./middlewares/auth');
 const NotFound = require('./errors/NotFound');
 // eslint-disable-next-line no-useless-escape
 const regExpUrl = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+require('dotenv').config();
 
 const app = express();
 
