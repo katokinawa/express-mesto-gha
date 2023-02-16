@@ -133,7 +133,7 @@ module.exports.login = (req, res, next) => {
           maxAge: 3600000 * 24 * 7,
           httpOnly: true,
         })
-        .send({ message: 'Аутентификация успешна!' });
+        .send(token);
     })
     .catch((err) => {
       next(err);
